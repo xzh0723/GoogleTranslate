@@ -14,7 +14,6 @@ function getTk(a) {
     }
     return a
     };
-    //eo参数可能变化，需要自行js调试更改
     eo = '433186.3509911887';
     if (null !== eo)
         var b = eo;
