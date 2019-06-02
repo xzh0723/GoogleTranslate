@@ -4,4 +4,4 @@
 
 成果展示
 ================
-![image](https://github.com/xzh0723/GoogleTranslate/blob/master/view.png）
+![image](https://github.com/xzh0723/GoogleTranslate/blob/master/view.png)
