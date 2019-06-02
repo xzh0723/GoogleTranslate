@@ -1,0 +1,71 @@
+import execjs
+import requests
+
+class GoogleTranslate():
+
+    def __init__(self, keyword, origine, translation):
+        self.keyword = keyword
+        # 只加入一些主流语言，有需要可自己将待译语言加入映射字典
+        self.LangurgeMap = {'中文': 'zh-CN', '英文': 'en', '日文': 'ja', '韩语': 'ko', '德语': 'de', '法语': 'fr'}
+        self.origine = self.LangurgeMap[origine]
+        self.translation = self.LangurgeMap[translation]
+
+    def getTk(self):
+        """
+        获取tk参数
+        :return:
+        """
+        with open('decryptTK.js', 'r') as f:
+            js = f.read()
+
+        ctx = execjs.compile(js)
+        tk = ctx.call('getTk', self.keyword)
+        print(f'tk参数: {tk}')
+        return tk
+
+    def translate(self, tk):
+        """
+        请求翻译API
+        :param tk:
+        :return:
+        """
+        url = 'https://translate.google.cn/translate_a/single?client=webapp&dt=at&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&ssel=0&tsel=0'
+
+        params = {
+            'sl': self.origine,
+            'tl': self.translation,
+            'hl': self.origine,
+            'tk': tk,
+            'q': self.keyword,
+        }
+
+        headers = {
+            'cookie': '_ga=GA1.3.1862228831.1553875207; NID=182=m0oz5Nyp-sXqECUTjoHoQ6-j8WAvrfmLb5gTZcJULVYhNg-WqlnCk7H7ipwEVU2Vekuxng3SeYQVkGYgzzmJhHciTs6lJeGWFXuK6GElCVNnuToiAhuogaUI99Uu5msVP1y0_NhFT8cui09wHT4QYxlJpR7FoVo6Iwj0djM24mQ; _gid=GA1.3.768240504.1559461001; _gat=1; 1P_JAR=2019-6-2-10',
+            'referer': 'https://translate.google.cn/',
+            'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Mobile Safari/537.36',
+            'x-client-data': 'CIq2yQEIpbbJAQjBtskBCKmdygEIqKPKAQixp8oBCOKoygEI8anKAQ==',
+        }
+
+        res = requests.get(url, params=params, headers=headers).json()
+        translate = {
+            '原文': res[0][0][1],
+            '译文': res[0][0][0],
+            '读音': res[0][1][2],
+            '译文解释': [i[0] for i in res[5][0][2]]
+        }
+        print(translate)
+
+    def run(self):
+        """
+        主函数运行
+        :return:
+        """
+        tk = self.getTk()
+        self.translate(tk)
+
+if __name__ == '__main__':
+    origine = input('请输入你的初始语言>> ')
+    translation = input('请输入你的翻译语言>> ')
+    keyword = input('请输入你要翻译的正文>> ')
+    spider = GoogleTranslate(keyword, origine, translation)
+    spider.run()
